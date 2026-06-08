@@ -1,12 +1,19 @@
 
+using ECommerce.API.Extensions;
+using ECommerce.Domain.Contracts;
+using ECommerce.Presistence.Data.DataSeed;
 using ECommerce.Presistence.Data.DbContexts;
+using ECommerce.Presistence.Repositories;
+using ECommerce.Services;
+using ECommerce.Services.Abstraction;
+using ECommerce.Services.MappingProfiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +30,20 @@ namespace ECommerce.API
                 
                 });
 
+            builder.Services.AddScoped<IDataIntializer, DataIntializer>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddAutoMapper(x=>x.AddProfile<ProductProfile>());
+            builder.Services.AddScoped<IProductService, ProductService>();
+
+
             var app = builder.Build();
 
+
+            await app.MigrateDataBaseAsync();
+
+            await app.SeedDataAsync();
+           
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -38,7 +57,7 @@ namespace ECommerce.API
 
             app.MapControllers();
 
-            app.Run();
+           await app.RunAsync();
         }
     }
 }
