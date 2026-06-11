@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace ECommerce.Presistence.Repositories
@@ -12,7 +13,7 @@ namespace ECommerce.Presistence.Repositories
     public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : BaseEntity<TKey>
     {
         private readonly StoreDbContext _dbContext;
-        public GenericRepository(StoreDbContext dbContext = null)
+        public GenericRepository(StoreDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -28,12 +29,25 @@ namespace ECommerce.Presistence.Repositories
 
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
+           
             return await _dbContext.Set<TEntity>().ToListAsync();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity, TKey> specifications)
+        {
+            var Query = SpecificationEvaluator.CreateQuery(_dbContext.Set<TEntity>(), specifications);
+            return await Query.ToListAsync();
         }
 
         public async Task<TEntity?> GetByIdAsync(TKey id)
         {
             return await _dbContext.Set<TEntity>().FindAsync(id);   
+        }
+
+        public async Task<TEntity?> GetByIdAsync(ISpecifications<TEntity, TKey> specifications)
+        {
+            var Query = SpecificationEvaluator.CreateQuery(_dbContext.Set<TEntity>(), specifications);
+            return await Query.FirstOrDefaultAsync();
         }
 
         public void Update(TEntity entity)
