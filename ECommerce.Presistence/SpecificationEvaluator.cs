@@ -23,6 +23,21 @@ namespace ECommerce.Presistence
                     Query = specifications.IncludeExpressions.Aggregate(Query, (CurrentQuery, includeEx) => CurrentQuery.Include(includeEx));
                  
                 }
+
+                if (specifications.OrderBy is not null)
+                {
+                    Query = Query.OrderBy(specifications.OrderBy);
+                }
+
+                if (specifications.OrderByDescending is not null)
+                {
+                    Query = Query.OrderByDescending(specifications.OrderByDescending);
+                }
+                if (specifications.IsPaginated == true)
+                {
+                    Query = Query.Skip(specifications.Skip).Take(specifications.Take);
+                }
+
             }
             return Query;
         }
