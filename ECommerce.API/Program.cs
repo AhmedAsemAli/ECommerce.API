@@ -1,5 +1,7 @@
 
+using ECommerce.API.CustomMiddlewares;
 using ECommerce.API.Extensions;
+using ECommerce.API.Factories;
 using ECommerce.Domain.Contracts;
 using ECommerce.Presistence.Data.DataSeed;
 using ECommerce.Presistence.Data.DbContexts;
@@ -7,6 +9,7 @@ using ECommerce.Presistence.Repositories;
 using ECommerce.Services;
 using ECommerce.Services.Abstraction;
 using ECommerce.Services.MappingProfiles;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -33,14 +36,34 @@ namespace ECommerce.API
 
             builder.Services.AddScoped<IDataIntializer, DataIntializer>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+           
             builder.Services.AddAutoMapper(typeof(ServiceAssemblyReference).Assembly);
             
             builder.Services.AddScoped<IProductService, ProductService>();
+           
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 return ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")!);
             });
+           
             builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+            builder.Services.AddScoped<IBasketService, BasketService>();
+            builder.Services.AddScoped<ICacheRepository, CacheRepository>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
+           
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = ApiResponseFactory.GenerateApiValidationResponse;
+                {
+                    
+                };
+            });
+
+
+
+
+
+
 
             var app = builder.Build();
 
@@ -48,9 +71,10 @@ namespace ECommerce.API
             await app.MigrateDataBaseAsync();
 
             await app.SeedDataAsync();
-           
-            
+
+
             // Configure the HTTP request pipeline.
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
