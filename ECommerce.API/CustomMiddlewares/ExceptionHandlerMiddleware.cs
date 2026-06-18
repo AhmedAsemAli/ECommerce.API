@@ -20,13 +20,13 @@ namespace ECommerce.API.CustomMiddlewares
             try
             {
                 await _next.Invoke(httpContext);
-                if (httpContext.Response.StatusCode == StatusCodes.Status404NotFound)
+                if (httpContext.Response.StatusCode == StatusCodes.Status404NotFound&& !httpContext.Response.HasStarted)
                 {
                     var problem = new ProblemDetails()
                     {
                         Title = "error while processing http request end point not found",
                         Status = StatusCodes.Status404NotFound,
-                        Detail = $"end point{httpContext.Request.Path} not found",
+                        Detail = $"EndPoint {httpContext.Request.Path} not found",
                         Instance = httpContext.Request.Path
                     };
                     await httpContext.Response.WriteAsJsonAsync(problem);
