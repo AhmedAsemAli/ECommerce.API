@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Contracts;
 using ECommerce.Domain.Entities;
+using ECommerce.Domain.Entities.OrderModule;
 using ECommerce.Domain.Entities.ProductModule;
 using ECommerce.Presistence.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +25,9 @@ namespace ECommerce.Presistence.Data.DataSeed
                 var hasProduct=await _dbContext.Products.AnyAsync();
                 var hasBrands = await _dbContext.ProductBrands.AnyAsync();
                 var hasTypes = await _dbContext.ProductTypes.AnyAsync();
+                var hasDeliveryMethod = await _dbContext.Set<DeliveryMethod>().AnyAsync();
 
-                if (hasProduct&&hasBrands&&hasTypes) 
+                if (hasProduct&&hasBrands&&hasTypes&& hasDeliveryMethod) 
                     return;
 
                 if (!hasBrands) 
@@ -41,11 +43,19 @@ namespace ECommerce.Presistence.Data.DataSeed
                 if (!hasProduct)
                 {
                     await SeedDataFromJson<Product, int>("products.json", _dbContext.Products);
-                   await _dbContext.SaveChangesAsync();
 
                 }
+
+                if (!hasDeliveryMethod)
+                {
+                    await SeedDataFromJson<DeliveryMethod, int>("delivery.json", _dbContext.Set<DeliveryMethod>());
+
+                }
+                await _dbContext.SaveChangesAsync();
+
+
             }
-			catch (Exception ex)
+            catch (Exception ex)
 			{
 
                 Console.WriteLine($"Error occured during data intialization: {ex}");
