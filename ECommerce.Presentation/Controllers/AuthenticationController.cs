@@ -1,5 +1,6 @@
 ﻿using ECommerce.Services.Abstraction;
 using ECommerce.Shared.DTOs.IdentityDTOs;
+using ECommerce.Shared.DTOs.OrderDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,9 +45,28 @@ namespace ECommerce.Presentation.Controllers
         [HttpGet("currentUser")]
         public async Task<ActionResult<UserDTO>> GetCurrentUser( )
         {
-            var email = User.FindFirstValue(ClaimTypes.Email);
+            var email = GetEmailFromToken();
             var result = await _authenticationService.GetUserByEmailAsync(email!);
             return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpGet("Address")]
+        public async Task<ActionResult<AddressDTO>> GetAddress()
+        {
+            var email = GetEmailFromToken();
+            var result = await _authenticationService.GetAddressAsync(email);
+            return HandleResult(result);
+        }
+
+        [Authorize]
+        [HttpPut("Address")]
+        public async Task<ActionResult<AddressDTO>>UpdateAddress(AddressDTO addressDTO)
+        {
+            var email = GetEmailFromToken();
+            var result = await _authenticationService.UpdateUserAddressAsync(email,addressDTO);
+            return HandleResult(result);
+
         }
     }
 }

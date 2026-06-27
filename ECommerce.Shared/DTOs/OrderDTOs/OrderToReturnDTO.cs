@@ -11,6 +11,7 @@ namespace ECommerce.Shared.DTOs.OrderDTOs
         public ICollection<OrderItemDTO> Items { get; init; }
         public AddressDTO Address { get; init; }
         public string DeliveryMethod { get; init; }
+        public string PaymentIntentId { get; init; }
         public string Status { get; init; }
         public DateTimeOffset OrderDate { get; init; }
         public decimal SubTotal { get; init; }

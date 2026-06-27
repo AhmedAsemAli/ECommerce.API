@@ -21,7 +21,6 @@ namespace ECommerce.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [RedisCache]
         public async Task<ActionResult<PaginatedResult<ProductDTO>>> GetAllProducts([FromQuery]ProductQueryParams queryParams) 
         {

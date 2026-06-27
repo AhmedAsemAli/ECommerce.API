@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
@@ -97,9 +98,14 @@ namespace ECommerce.API
                 };
             });
             builder.Services.AddScoped<IOrderService, OrderService>();
-
-
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("DevelopmentPolicy", builder =>
+                {
+                    builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+                });
+            });
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 
@@ -122,7 +128,7 @@ namespace ECommerce.API
             }
             app.UseStaticFiles();
             app.UseHttpsRedirection();
-
+            app.UseCors("DevelopmentPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
 
